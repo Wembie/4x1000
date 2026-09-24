@@ -131,8 +131,16 @@ BASE_PATH=/4x1000/ npm run build
 
 ## Deployment
 
-El workflow `.github/workflows/deploy.yml` hace checkout → Node → `npm ci` → lint → test → build →
-deploy de `dist/` a GitHub Pages en cada push a `main`. En pull requests solo valida (sin deploy).
+Dos workflows con responsabilidades separadas:
+
+| Workflow                       | Cuándo                                | Qué hace                                       |
+| ------------------------------ | ------------------------------------- | ---------------------------------------------- |
+| `.github/workflows/ci.yml`     | Pull requests hacia `main`            | Formato → lint → tests → typecheck + build     |
+| `.github/workflows/deploy.yml` | Push a `main` (o manual desde `main`) | Build con la ruta de Pages → deploy de `dist/` |
+
+El deploy no repite las validaciones: lo que llega a `main` ya pasó CI en el PR. Para que eso sea
+una garantía, protege la rama: _Settings → Branches → Add rule → `main`_ → **Require status checks
+to pass** → marca **Lint, test and build**.
 
 **Setup inicial (una sola vez):** en el repositorio, _Settings → Pages → Build and deployment →
 Source_: **GitHub Actions**. Después, cada push a `main` despliega solo.
