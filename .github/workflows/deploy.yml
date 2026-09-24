@@ -1,9 +1,9 @@
 name: Deploy
 
+# Validation lives in ci.yml and runs on every PR; this workflow only ships
+# what already passed there.
 on:
   push:
-    branches: [main]
-  pull_request:
     branches: [main]
   workflow_dispatch:
 
@@ -12,14 +12,15 @@ permissions:
   pages: write
   id-token: write
 
-# Deploys from main run one at a time and are never cancelled halfway.
-# PR checks get their own group so they never queue behind a deploy.
+# One deployment at a time; never cancel a production deploy halfway.
 concurrency:
-  group: ${{ github.event_name == 'pull_request' && format('checks-{0}', github.ref) || 'pages' }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   build:
+    # A manual "Run workflow" can target any branch; only main may ship.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -34,12 +35,6 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Lint
-        run: npm run lint
-
-      - name: Test
-        run: npm test
-
       - name: Configure Pages
         id: pages
         uses: actions/configure-pages@v5
@@ -52,15 +47,11 @@ jobs:
           VITE_SITE_URL: ${{ steps.pages.outputs.base_url }}/
 
       - name: Upload artifact
-        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
-  # Only main reaches production, whatever triggered the run. A manual
-  # "Run workflow" on another branch still builds and tests, but stops here.
   deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     environment:
