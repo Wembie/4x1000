@@ -1,0 +1,193 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-*: initial;
+  --color-bg: #080b12;
+  --color-surface: #10151f;
+  --color-surface-2: #161d29;
+  --color-surface-3: #1d2533;
+  --color-fg: #f8fafc;
+  --color-muted: #94a3b8;
+  --color-faint: #7d8ba0;
+  --color-money: #22c55e;
+  --color-money-soft: rgb(34 197 94 / 0.14);
+  --color-accent: #f5c518;
+  --color-accent-soft: rgb(245 197 24 / 0.12);
+  --color-danger: #ef4444;
+  --color-danger-soft: rgb(239 68 68 / 0.12);
+  --color-line: rgb(255 255 255 / 0.08);
+  --color-line-strong: rgb(255 255 255 / 0.14);
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  --font-sans: 'Geist Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  --text-hero: clamp(3.5rem, 11vw, 7rem);
+  --text-hero--line-height: 0.9;
+  --text-hero--letter-spacing: -0.055em;
+  --text-display: clamp(2.5rem, 9vw, 4.25rem);
+  --text-display--line-height: 1;
+  --text-display--letter-spacing: -0.045em;
+
+  --radius-card: 1.25rem;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --navbar-height: 3.75rem;
+  }
+
+  html {
+    scroll-padding-top: calc(var(--navbar-height) + 1.5rem);
+    -webkit-tap-highlight-color: transparent;
+    text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    @apply bg-bg font-sans text-fg antialiased;
+    font-feature-settings: 'ss01', 'cv11';
+    overflow-x: clip;
+  }
+
+  ::selection {
+    @apply bg-accent text-bg;
+  }
+
+  :focus-visible {
+    @apply rounded-sm outline-2 outline-offset-2 outline-accent;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum', 'ss01';
+}
+
+@utility eyebrow {
+  @apply font-mono text-[0.6875rem] font-medium tracking-[0.14em] text-muted uppercase;
+}
+
+/* Hairline grid used behind the hero; masked so it fades before the edges. */
+@utility bg-ledger {
+  background-image:
+    linear-gradient(to right, var(--color-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-line) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, black 20%, transparent 75%);
+}
+
+@layer components {
+  /* Native range styled per engine; the fill is driven by --fill from React. */
+  .range {
+    --track-height: 4px;
+    --thumb-size: 22px;
+    appearance: none;
+    width: 100%;
+    height: var(--thumb-size);
+    background: transparent;
+    cursor: pointer;
+    touch-action: pan-y;
+  }
+
+  .range::-webkit-slider-runnable-track {
+    height: var(--track-height);
+    border-radius: 999px;
+    background: linear-gradient(
+      to right,
+      var(--color-accent) var(--fill),
+      var(--color-surface-3) var(--fill)
+    );
+  }
+
+  .range::-moz-range-track {
+    height: var(--track-height);
+    border-radius: 999px;
+    background: var(--color-surface-3);
+  }
+
+  .range::-moz-range-progress {
+    height: var(--track-height);
+    border-radius: 999px;
+    background: var(--color-accent);
+  }
+
+  .range::-webkit-slider-thumb {
+    appearance: none;
+    width: var(--thumb-size);
+    height: var(--thumb-size);
+    margin-top: calc((var(--track-height) - var(--thumb-size)) / 2);
+    border-radius: 999px;
+    background: var(--color-fg);
+    border: 5px solid var(--color-bg);
+    box-shadow: 0 0 0 1px var(--color-line-strong);
+    transition:
+      transform 160ms var(--ease-out-soft),
+      box-shadow 160ms var(--ease-out-soft);
+  }
+
+  .range::-moz-range-thumb {
+    width: var(--thumb-size);
+    height: var(--thumb-size);
+    border-radius: 999px;
+    background: var(--color-fg);
+    border: 5px solid var(--color-bg);
+    box-shadow: 0 0 0 1px var(--color-line-strong);
+    transition: transform 160ms var(--ease-out-soft);
+  }
+
+  .range:hover::-webkit-slider-thumb {
+    box-shadow:
+      0 0 0 1px var(--color-line-strong),
+      0 0 0 6px rgb(245 197 24 / 0.12);
+  }
+
+  .range:active::-webkit-slider-thumb {
+    transform: scale(1.12);
+  }
+
+  .range:active::-moz-range-thumb {
+    transform: scale(1.12);
+  }
+
+  .range:focus-visible {
+    outline: none;
+  }
+
+  .range:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 0 0 2px var(--color-accent);
+  }
+
+  .range:focus-visible::-moz-range-thumb {
+    box-shadow: 0 0 0 2px var(--color-accent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
